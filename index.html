@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+    <head>
+            <meta charset="UTF-8">
+            <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.min.css" >
+            <style>
+                #parent {
+                    display: flex;
+                    flex-direction: column;
+                    flex-wrap: nowrap;
+                    border:3px black solid;
+                    height:-webkit-fill-available;
+                }
+                #top-bar, #mid-section,  #coming-soon {
+                    border:1px blue dashed;
+                    display:flex;
+                    flex-direction: row;
+                    flex-wrap: nowrap;
+                }
+                #top-bar, #bot-section {
+                    flex-grow: .15;
+                }
+                #coming-soon{
+                    flex-grow: .10
+                }
+               
+                #mid-section {
+                    flex-grow: .60;
+                }
+
+                #entry, .measure, .handed { 
+                    flex-grow: 1;
+                    border:1px red dotted;
+                }
+
+                h1, h2, .measure {
+                    text-align: center;
+                }
+                .measure{
+                    font-size: 36px; 
+                }
+
+                label { margin: 20px; }
+
+                #mid-section, #coming-soon {
+                    text-align: center;
+                    font-size: 2em;
+                }
+                #coming-soon {
+                    font-size: 1.2em; 
+                }
+
+                .counted {
+                    background-color: tan;
+                }
+                
+            </style>
+
+            <script>
+                function start(){
+                    //1. get times
+                    //2. clear measures and displays
+                    //3. set up timers.
+
+                    //1. 
+                    var times = getTimes(); 
+                    console.log("times:", times); // JSON.stringify(times));
+                    //2
+                    resetMeasures()
+                    resetDisplays();
+
+
+                }
+                function getTimes(){
+                    var bpmStr = document.querySelector("#bpm").getAttribute("value");
+                    var bpm = parseInt(bpmStr);
+                    //console.log("bpm!!", bpmStr, bpm);
+                    var beatMs = (1000 * 60) / bpm;   //(1000 ms/s  * 60 s/m) / b/m ==> ms/beat
+                    var measureTime = beatMs * 4;     // assuming 4/4 time
+                    var phraseTime = measureTime * 4; // 4 measures per phrase.
+                    return {bpm: bpm, beatMs: beatMs, measureTime:measureTime, phraseTime:phraseTime};
+                }
+                function resetMeasures(){
+                    var measures = document.querySelectorAll(".measure");
+                    measures.forEach(function(measure){
+                        measure.classList.remove("counted");
+                    })
+                }
+                function resetDisplays(){
+                    var contents = document.querySelectorAll(".content");
+                    contents.forEach(function(content){
+                        content.textContent = "";
+                    })
+                }
+            </script>
+    </head>
+    <body>
+        <div id="parent">
+            <div id="top-bar">
+                <div id="entry">
+                    <label>bpm: <input id="bpm" type="text" value="60"></label>
+                    <input type="button" value="restart">
+                </div>
+                <div class="measure counted">1</div>
+                <div class="measure">2</div>
+                <div class="measure">3</div>
+                <div class="measure">4</div>
+            </div>
+            <div id="mid-section">
+                <div id="lh" class="handed">
+                    <h1>LH</h1>
+                    <p class="content">walking</p>
+                </div>
+                <div id="rh" class="handed">
+                        <h1>RH</h1>
+                        <p class="content">melody</p>
+                </div>
+            </div>
+            <div id="coming-soon">
+                    <div id="lh-soon" class="handed">
+                        <p class="content">walking</p>
+                    </div>
+                    <div id="rh-soon" class="handed">
+                        <p class="content">melody</p>
+                    </div>
+                </div>
+            <div id="bot-section">
+                <h2>Approaches &amp; Substitutions</h2>
+            </div>
+        </div>
+        <script>
+            start();
+        </script>
+    </body>
+</html>
