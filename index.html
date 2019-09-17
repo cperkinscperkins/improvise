@@ -50,26 +50,70 @@
                     font-size: 1.2em; 
                 }
 
-                .counted {
+                
+                .measure {
                     background-color: tan;
+                }
+                .measure.uncounted {
+                    background-color: transparent; 
                 }
                 
             </style>
 
             <script>
+                var rhythms = [
+                    "rhythm: 1 2½",
+                    "rhythm: 2 3½",
+                    "rhythm: 3 4½",
+                    "rhythm: 1½ 4",
+                    "rhythm: 1 3½",
+                    "rhythm: 2 4½",
+                    "rhythm: 1½ 3",
+                    "rhythm: 2½ 4"
+                ];
+                var lh_patterns = [
+                    "walking bass (with arrastre)",
+                    "walking bass, 1 y 3",
+                    "3|3|3",
+                    "bordoneo",
+                    "milonga/habanera",
+                    "milonga with run V->I",
+                    "oompah 1 - 5",
+                    "marcato arc",
+                    "sincopa",
+                    "RHYTHMS",
+                    "stride",
+                    "marcato and minor chroma descent",
+                    "melody",
+                    "expressive",
+                    "blancas"
+                ];
+                var rh_patterns = [
+                    "melody",
+                    "melody - chords 1 y 3",
+                    "melody - chords",
+                    "melody - 6ths and 3rds",
+                    "marcato arc",
+                    "RHYTHMS",
+                    "* bordoneo",
+                    "* shearing",
+                    "expressive"
+                ]
                 function start(){
                     //1. get times
                     //2. clear measures and displays
                     //3. set up timers.
 
-                    //1. 
+                    //1 
                     var times = getTimes(); 
                     console.log("times:", times); // JSON.stringify(times));
                     //2
                     resetMeasures()
                     resetDisplays();
-
-
+                    //3
+                    changeDisplays();
+                    changeDisplays();
+                    setTimers(times);
                 }
                 function getTimes(){
                     var bpmStr = document.querySelector("#bpm").getAttribute("value");
@@ -83,15 +127,64 @@
                 function resetMeasures(){
                     var measures = document.querySelectorAll(".measure");
                     measures.forEach(function(measure){
-                        measure.classList.remove("counted");
-                    })
+                        measure.classList.add("uncounted");
+                    });
                 }
                 function resetDisplays(){
                     var contents = document.querySelectorAll(".content");
                     contents.forEach(function(content){
                         content.textContent = "";
-                    })
+                    });
                 }
+                var upcomingLH, upcomingRH;
+                function changeDisplays(){
+                   var curLH = document.querySelector("#lh .content"),
+                       curRH = document.querySelector("#rh .content"),
+                       upcLH = document.querySelector("#lh-soon .content"),
+                       upcRH = document.querySelector("#rh-soon .content");
+                    curLH.textContent = upcLH.textContent;
+                    curRH.textContent = upcRH.textContent;
+
+                   nextPatterns = selectNextPatterns();
+                   upcLH.textContent = nextPatterns.lh;
+                   upcRH.textContent = nextPatterns.rh;
+                }
+                var measureInterval, phraseInterval;
+                function setTimers(times) {
+                    //times => {bpm: bpm, beatMs: beatMs, measureTime:measureTime, phraseTime:phraseTime}
+                    measureInterval = setInterval(measureTimeoutF, times.measureTime);
+                    phraseInterval  = setInterval(phraseTimeoutF, times.phraseTime);
+                }
+                function measureTimeoutF(){
+                    var nextMeasure = document.querySelector(".measure.uncounted");
+                    if(nextMeasure){
+                        nextMeasure.classList.remove("uncounted");
+                    }
+                    console.log("measure complete");
+                }
+                function phraseTimeoutF(){
+                    resetMeasures();
+                    changeDisplays();
+                    console.log("phrase complete");
+                }
+                function selectNextPatterns(){
+                    var rh = selectRandom(rh_patterns);
+                    var lh = selectRandom(lh_patterns);
+                    if(rh == "RHYTHMS"){
+                        rh = selectRandom(rhythms);
+                    }
+                    if(rh[0] == "*"){ lh = rh; }
+                    if(lh == "RHYTHMS"){
+                        lh = selectRandom(rhythms);
+                    }
+                    return {lh: lh, rh:rh};
+                }
+                function selectRandom(array){
+                    var r = Math.random();
+                    var i = Math.floor(r * array.length);
+                    return array[i];
+                }
+
             </script>
     </head>
     <body>
@@ -101,7 +194,7 @@
                     <label>bpm: <input id="bpm" type="text" value="60"></label>
                     <input type="button" value="restart">
                 </div>
-                <div class="measure counted">1</div>
+                <div class="measure uncounted">1</div>
                 <div class="measure">2</div>
                 <div class="measure">3</div>
                 <div class="measure">4</div>
