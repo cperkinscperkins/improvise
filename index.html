@@ -86,7 +86,7 @@
                 var lh_patterns = [
                     "walking bass (with arrastre)",
                     "walking bass, 1 y 3",
-                    "3|3|3",
+                    "3|3|2",
                     "bordoneo",
                     "milonga/habanera",
                     "milonga with run V->I",
@@ -146,8 +146,8 @@
                         measure.classList.add("uncounted");
                         measure.classList.remove("current");
                     });
-                    var current = document.querySelector(".measure");
-                    current.classList.add("current");
+                    currentMeasure = document.querySelector(".measure");
+                    currentMeasure.classList.add("current");
                 }
                 function resetDisplays(){
                     var contents = document.querySelectorAll(".content");
@@ -175,13 +175,27 @@
                         approach.textContent = selectRandom(approaches);
                     }
                 }
-                var measureInterval, phraseInterval;
+                var beatInterval, measureInterval, phraseInterval;
+                var currentMeasure;
                 function setTimers(times) {
                     //times => {bpm: bpm, beatMs: beatMs, measureTime:measureTime, phraseTime:phraseTime}
+                    clearInterval(beatInterval);
                     clearInterval(measureInterval);
                     clearInterval(phraseInterval);
+                    
                     measureInterval = setInterval(measureTimeoutF, times.measureTime);
                     phraseInterval  = setInterval(phraseTimeoutF, times.phraseTime);
+                    beatInterval    = setInterval(beatTimeoutF, times.beatMs);
+                }
+                function beatTimeoutF(){
+                    //flash the current measure
+                    //console.log("flash", currentMeasure);
+                    if(currentMeasure){
+                        currentMeasure.classList.remove("current");
+                        setTimeout(function(){
+                            if(currentMeasure){ currentMeasure.classList.add("current");}
+                        }, 20);
+                    }
                 }
                 function measureTimeoutF(){
                     var nextMeasure = document.querySelector(".measure.uncounted");
@@ -189,9 +203,9 @@
                         nextMeasure.classList.remove("uncounted");
                         nextMeasure.classList.remove("current");
                     }
-                    nextMeasure = document.querySelector(".measure.uncounted");
-                    if(nextMeasure){
-                        nextMeasure.classList.add("current");
+                    currentMeasure = document.querySelector(".measure.uncounted");
+                    if(currentMeasure){
+                        currentMeasure.classList.add("current");
                     }
                     //console.log("measure complete");
                 }
