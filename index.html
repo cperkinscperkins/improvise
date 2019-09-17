@@ -183,9 +183,9 @@
                     clearInterval(measureInterval);
                     clearInterval(phraseInterval);
                     
+                    beatInterval    = setInterval(beatTimeoutF, times.beatMs);
                     measureInterval = setInterval(measureTimeoutF, times.measureTime);
                     phraseInterval  = setInterval(phraseTimeoutF, times.phraseTime);
-                    beatInterval    = setInterval(beatTimeoutF, times.beatMs);
                 }
                 function beatTimeoutF(){
                     //flash the current measure
@@ -194,7 +194,9 @@
                         currentMeasure.classList.remove("current");
                         setTimeout(function(){
                             if(currentMeasure){ currentMeasure.classList.add("current");}
-                        }, 20);
+                        }, 50);
+                    } else {
+                        console.log("miss!")
                     }
                 }
                 function measureTimeoutF(){
