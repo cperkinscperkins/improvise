@@ -36,13 +36,14 @@
                 h1, h2, .measure {
                     text-align: center;
                 }
-                .measure{
+                h2 { font-size: 1.1em; }
+                .measure {
                     font-size: 36px; 
                 }
 
                 label { margin: 20px; }
 
-                #mid-section, #coming-soon {
+                #mid-section, #coming-soon, #bot-section .content {
                     text-align: center;
                     font-size: 2em;
                 }
@@ -56,6 +57,9 @@
                 }
                 .measure.uncounted {
                     background-color: transparent; 
+                }
+                .measure.current {
+                    background-color: red;
                 }
                 
             </style>
@@ -71,6 +75,14 @@
                     "rhythm: 1½ 3",
                     "rhythm: 2½ 4"
                 ];
+                var approaches = [
+                    "♭dim -> minor approach",
+                    "F7 -> E7 approach",
+                    "V -> II V substitution",
+                    "fills", 
+                    "fills - campanas",
+                    "tritone substitution",
+                ]
                 var lh_patterns = [
                     "walking bass (with arrastre)",
                     "walking bass, 1 y 3",
@@ -98,7 +110,11 @@
                     "* bordoneo",
                     "* shearing",
                     "expressive"
-                ]
+                ];
+                function registerEventListeners(){
+                    var restartBtn = document.querySelector("#restart");
+                    restartBtn.addEventListener("click", start);
+                }
                 function start(){
                     //1. get times
                     //2. clear measures and displays
@@ -116,9 +132,9 @@
                     setTimers(times);
                 }
                 function getTimes(){
-                    var bpmStr = document.querySelector("#bpm").getAttribute("value");
+                    var bpmStr = document.querySelector("#bpm").value; 
                     var bpm = parseInt(bpmStr);
-                    //console.log("bpm!!", bpmStr, bpm);
+                    console.log("bpm!!", bpmStr, bpm);
                     var beatMs = (1000 * 60) / bpm;   //(1000 ms/s  * 60 s/m) / b/m ==> ms/beat
                     var measureTime = beatMs * 4;     // assuming 4/4 time
                     var phraseTime = measureTime * 4; // 4 measures per phrase.
@@ -128,7 +144,10 @@
                     var measures = document.querySelectorAll(".measure");
                     measures.forEach(function(measure){
                         measure.classList.add("uncounted");
+                        measure.classList.remove("current");
                     });
+                    var current = document.querySelector(".measure");
+                    current.classList.add("current");
                 }
                 function resetDisplays(){
                     var contents = document.querySelectorAll(".content");
@@ -149,9 +168,18 @@
                    upcLH.textContent = nextPatterns.lh;
                    upcRH.textContent = nextPatterns.rh;
                 }
+                function changeApproach(){
+                    var approach = document.querySelector("#bot-section .content");
+                    approach.textContent = "";
+                    if(Math.random() > .8){
+                        approach.textContent = selectRandom(approaches);
+                    }
+                }
                 var measureInterval, phraseInterval;
                 function setTimers(times) {
                     //times => {bpm: bpm, beatMs: beatMs, measureTime:measureTime, phraseTime:phraseTime}
+                    clearInterval(measureInterval);
+                    clearInterval(phraseInterval);
                     measureInterval = setInterval(measureTimeoutF, times.measureTime);
                     phraseInterval  = setInterval(phraseTimeoutF, times.phraseTime);
                 }
@@ -159,13 +187,19 @@
                     var nextMeasure = document.querySelector(".measure.uncounted");
                     if(nextMeasure){
                         nextMeasure.classList.remove("uncounted");
+                        nextMeasure.classList.remove("current");
                     }
-                    console.log("measure complete");
+                    nextMeasure = document.querySelector(".measure.uncounted");
+                    if(nextMeasure){
+                        nextMeasure.classList.add("current");
+                    }
+                    //console.log("measure complete");
                 }
                 function phraseTimeoutF(){
                     resetMeasures();
                     changeDisplays();
-                    console.log("phrase complete");
+                    changeApproach();
+                    //console.log("phrase complete");
                 }
                 function selectNextPatterns(){
                     var rh = selectRandom(rh_patterns);
@@ -192,7 +226,7 @@
             <div id="top-bar">
                 <div id="entry">
                     <label>bpm: <input id="bpm" type="text" value="60"></label>
-                    <input type="button" value="restart">
+                    <input type="button" value="restart" id="restart">
                 </div>
                 <div class="measure uncounted">1</div>
                 <div class="measure">2</div>
@@ -219,9 +253,11 @@
                 </div>
             <div id="bot-section">
                 <h2>Approaches &amp; Substitutions</h2>
+                <p class="content"></p>
             </div>
         </div>
         <script>
+            registerEventListeners();
             start();
         </script>
     </body>
