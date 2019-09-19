@@ -11,6 +11,17 @@
                     border:3px black solid;
                     height:-webkit-fill-available;
                 }
+                #entry {
+                    display: flex;
+                    flex-direction: column;
+                }
+                #restart {
+                    width: 120px;
+                    margin-left:40px;
+                }
+                input {
+                    width: 100px;
+                }
                 #top-bar, #mid-section,  #coming-soon {
                     border:1px blue dashed;
                     display:flex;
@@ -124,23 +135,36 @@
                     var times = getTimes(); 
                     console.log("times:", times); // JSON.stringify(times));
                     //2
-                    resetMeasures()
+                    resetMeasures(times)
                     resetDisplays();
+                    //we bump the display "twice" to prime it and the next with random pipeline
+                    changeDisplays();
+                    changeDisplays();
+
                     //3
-                    changeDisplays();
-                    changeDisplays();
                     setTimers(times);
                 }
                 function getTimes(){
-                    var bpmStr = document.querySelector("#bpm").value; 
-                    var bpm = parseInt(bpmStr);
-                    console.log("bpm!!", bpmStr, bpm);
-                    var beatMs = (1000 * 60) / bpm;   //(1000 ms/s  * 60 s/m) / b/m ==> ms/beat
-                    var measureTime = beatMs * 4;     // assuming 4/4 time
-                    var phraseTime = measureTime * 4; // 4 measures per phrase.
-                    return {bpm: bpm, beatMs: beatMs, measureTime:measureTime, phraseTime:phraseTime};
+                    var bpmStr    = document.querySelector("#bpm").value; 
+                    var bpm       = parseInt(bpmStr);
+                    var phraseStr = document.querySelector("#phrase").value;
+                    var phraseLen = parseInt(phraseStr);
+                    var beatsStr  = document.querySelector("#beats").value;
+                    var beatsPerM = parseInt(beatsStr);
+
+                    console.log("input",  bpm, phraseLen, beatsPerM);
+                    var beatMs = (1000 * 60) / bpm;           //(1000 ms/s  * 60 s/m) / b/m ==> ms/beat
+                    var measureTime = beatMs * beatsPerM;     // starts with 4/4 time
+                    var phraseTime = measureTime * phraseLen; // starts with 4 measures per phrase.
+                    return {bpm: bpm,
+                            beatMs: beatMs,
+                            measureTime:measureTime,
+                            phraseTime:phraseTime,
+                            phraseLen: phraseLen,
+                            beatsPerMeasure: beatsPerM
+                        };
                 }
-                function resetMeasures(){
+                function resetMeasures(times){
                     var measures = document.querySelectorAll(".measure");
                     measures.forEach(function(measure){
                         measure.classList.add("uncounted");
@@ -242,6 +266,8 @@
             <div id="top-bar">
                 <div id="entry">
                     <label>bpm: <input id="bpm" type="text" value="60"></label>
+                    <label>phrase: <input id="phrase" type="number" min="1" value="4"> measures</label>
+                    <label>beats: <input id="beats" type="number" min="1" value="4"> per meas.</label>
                     <input type="button" value="restart" id="restart">
                 </div>
                 <div class="measure uncounted">1</div>
