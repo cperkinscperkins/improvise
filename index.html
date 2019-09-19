@@ -120,19 +120,23 @@
                     "RHYTHMS",
                     "* bordoneo",
                     "* shearing",
-                    "expressive"
+                    "expressive",
+                    "improvise",
+                    "variacion"
                 ];
                 function registerEventListeners(){
                     var restartBtn = document.querySelector("#restart");
                     restartBtn.addEventListener("click", start);
                 }
+                //another global!!
+                var times;
                 function start(){
                     //1. get times
                     //2. clear measures and displays
                     //3. set up timers.
 
                     //1 
-                    var times = getTimes(); 
+                    times = getTimes(); 
                     console.log("times:", times); // JSON.stringify(times));
                     //2
                     resetMeasures(times)
@@ -166,10 +170,21 @@
                 }
                 function resetMeasures(times){
                     var measures = document.querySelectorAll(".measure");
+                    var parent   = document.querySelector("#top-bar");
                     measures.forEach(function(measure){
-                        measure.classList.add("uncounted");
-                        measure.classList.remove("current");
+                        measure.remove();
+                        //measure.classList.add("uncounted");
+                        //measure.classList.remove("current");
                     });
+                    for(var i=1; i <= times.phraseLen; i++) {
+                        //not working
+                        //parent.append('<div class="measure uncounted">i</div>');
+                        var d = document.createElement("div");
+                        d.classList.add("uncounted");
+                        d.classList.add("measure");
+                        d.textContent = i;
+                        parent.append(d);
+                    }
                     currentMeasure = document.querySelector(".measure");
                     currentMeasure.classList.add("current");
                 }
@@ -236,7 +251,7 @@
                     //console.log("measure complete");
                 }
                 function phraseTimeoutF(){
-                    resetMeasures();
+                    resetMeasures(times);
                     changeDisplays();
                     changeApproach();
                     //console.log("phrase complete");
